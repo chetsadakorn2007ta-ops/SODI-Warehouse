@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ระบบบริหารจัดการคลังสินค้าปากกาตราสอดี">
+  <title>SODI Warehouse Management</title>
+  <style>
+    :root {
+      --primary: #0757b8;
+      --primary-dark: #063b7a;
+      --primary-light: #eaf3ff;
+      --secondary: #15a2e2;
+      --white: #ffffff;
+      --background: #f3f7fc;
+      --text: #172033;
+      --muted: #64748b;
+      --border: #dbe5f0;
+      --success: #159447;
+      --warning: #e59700;
+      --danger: #dc3545;
+      --sidebar-width: 260px;
+      --shadow: 0 10px 30px rgba(13, 60, 120, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--background);
+      font-family: "Tahoma", "Noto Sans Thai", Arial, sans-serif;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .login-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(55, 160, 255, 0.32), transparent 30%),
+        linear-gradient(135deg, #032e68 0%, #0757b8 55%, #2aa7e8 100%);
+    }
+
+    .login-brand {
+      position: relative;
+      overflow: hidden;
+      padding: 70px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      color: white;
+    }
+
+    .login-brand h1 {
+      margin: 22px 0 12px;
+      max-width: 680px;
+      font-size: clamp(36px, 5vw, 68px);
+      line-height: 1.05;
+    }
+
+    .login-brand p {
+      max-width: 600px;
+      margin: 0;
+      color: rgba(255,255,255,0.83);
+      font-size: 18px;
+      line-height: 1.8;
+    }
+
+    .brand-badge {
+      width: fit-content;
+      padding: 8px 14px;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 100px;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .pen-art {
+      position: absolute;
+      right: -90px;
+      bottom: 100px;
+      width: 590px;
+      height: 82px;
+      border-radius: 20px 45px 45px 20px;
+      background: linear-gradient(180deg, #fff 0%, #daeaff 100%);
+      box-shadow: 0 30px 50px rgba(0,0,0,0.22);
+      transform: rotate(-24deg);
+      opacity: 0.94;
+    }
+
+    .pen-art::before {
+      content: "";
+      position: absolute;
+      left: -120px;
+      top: 0;
+      width: 135px;
+      height: 82px;
+      border-radius: 45px 12px 12px 45px;
+      background: linear-gradient(180deg, #178fea, #054796);
+      box-shadow: inset -8px 0 10px rgba(0,0,0,0.13);
+    }
+
+    .pen-art::after {
+      content: "SODI";
+      position: absolute;
+      top: 19px;
+      left: 210px;
+      color: var(--primary);
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 5px;
+    }
+
+    .login-panel {
+      padding: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.97);
+      border-radius: 36px 0 0 36px;
+    }
+
+    .login-card {
+      width: min(440px, 100%);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-mark {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: linear-gradient(145deg, var(--secondary), var(--primary-dark));
+      border-radius: 14px;
+      font-weight: 900;
+      box-shadow: 0 8px 20px rgba(7,87,184,0.25);
+    }
+
+    .logo-text strong,
+    .logo-text span {
+      display: block;
+    }
+
+    .logo-text strong {
+      color: var(--primary-dark);
+      font-size: 19px;
+    }
+
+    .logo-text span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .login-card h2 {
+      margin: 42px 0 8px;
+      font-size: 30px;
+    }
+
+    .login-card > p {
+      margin: 0 0 28px;
+      color: var(--muted);
+    }
+
+    .field {
+      margin-bottom: 17px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      color: #334155;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .input {
+      width: 100%;
+      min-height: 46px;
+      padding: 11px 13px;
+      color: var(--text);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    textarea.input {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(7,87,184,0.1);
+    }
+
+    .btn {
+      min-height: 42px;
+      padding: 9px 16px;
+      border: 0;
+      border-radius: 9px;
+      font-weight: 700;
+      transition: 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      box-shadow: 0 7px 15px rgba(7,87,184,0.18);
+    }
+
+    .btn-secondary {
+      color: var(--primary-dark);
+      background: var(--primary-light);
+    }
+
+    .btn-danger {
+      color: white;
+      background: var(--danger);
+    }
+
+    .btn-success {
+      color: white;
+      background: var(--success);
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .login-help {
+      margin-top: 25px;
+      padding: 14px;
+      color: #46617f;
+      background: var(--primary-light);
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .login-error {
+      min-height: 20px;
+      margin: 12px 0;
+      color: var(--danger);
+      font-size: 13px;
+    }
+
+    .app {
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 20;
+      width: var(--sidebar-width);
+      padding: 25px 17px;
+      color: white;
+      background: linear-gradient(180deg, #052c61, #06499a 58%, #0874c9);
+      overflow-y: auto;
+      transition: 0.25s;
+    }
+
+    .sidebar .logo-text strong {
+      color: white;
+    }
+
+    .sidebar .logo-text span {
+      color: rgba(255,255,255,0.65);
+    }
+
+    .nav {
+      margin-top: 35px;
+    }
+
+    .nav-label {
+      margin: 22px 12px 8px;
+      color: rgba(255,255,255,0.48);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .nav-item {
+      width: 100%;
+      margin-bottom: 6px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      color: rgba(255,255,255,0.8);
+      background: transparent;
+      border: 0;
+      border-radius: 9px;
+      text-align: left;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      color: white;
+      background: rgba(255,255,255,0.14);
+    }
+
+    .sidebar-footer {
+      margin-top: 35px;
+      padding: 14px;
+      background: rgba(0,0,0,0.13);
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .sidebar-footer strong,
+    .sidebar-footer span {
+      display: block;
+    }
+
+    .sidebar-footer span {
+      margin-top: 4px;
+      color: rgba(255,255,255,0.65);
+    }
+
+    .main {
+      min-height: 100vh;
+      margin-left: var(--sidebar-width);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      height: 74px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.94);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    .topbar-date {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 39px;
+      height: 39px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: var(--primary);
+      border-radius: 50%;
+      font-weight: 900;
+    }
+
+    .user-info strong,
+    .user-info span {
+      display: block;
+    }
+
+    .user-info span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .menu-toggle {
+      display: none;
+      padding: 7px 10px;
+      color: white;
+      background: var(--primary);
+      border: 0;
+      border-radius: 8px;
+    }
+
+    .content {
+      padding: 28px;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+      animation: fade 0.25s ease;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-header {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .page-header h3 {
+      margin: 0;
+      font-size: 23px;
+    }
+
+    .page-header p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .stat-card {
+      position: relative;
+      overflow: hidden;
+      padding: 22px;
+      background: white;
+      border: 1px solid rgba(219,229,240,0.8);
+      border-radius: 15px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      bottom: -28px;
+      width: 90px;
+      height: 90px;
+      background: var(--primary-light);
+      border-radius: 50%;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .stat-value {
+      margin: 10px 0 5px;
+      color: var(--primary-dark);
+      font-size: 32px;
+      font-weight: 900;
+    }
+
+    .stat-note {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .grid-2 {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+    }
+
+    .card {
+      padding: 20px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-title {
+      margin: 0 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 16px;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      white-space: nowrap;
+    }
+
+    th,
+    td {
+      padding: 13px 12px;
+      border-bottom: 1px solid #edf1f6;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      color: #52657c;
+      background: #f7faff;
+      font-size: 12px;
+    }
+
+    tbody tr:hover {
+      background: #fbfdff;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge-success {
+      color: #0c7435;
+      background: #dcf7e7;
+    }
+
+    .badge-danger {
+      color: #b52030;
+      background: #ffe4e7;
+    }
+
+    .badge-warning {
+      color: #8b5b00;
+      background: #fff0c8;
+    }
+
+    .badge-info {
+      color: #0757b8;
+      background: #e3f0ff;
+    }
+
+    .stock-bar {
+      min-width: 120px;
+      height: 7px;
+      background: #e9eff6;
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .stock-bar span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      border-radius: inherit;
+    }
+
+    .filters {
+      margin-bottom: 18px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      align-items: end;
+      gap: 12px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+    }
+
+    .filters .field {
+      margin: 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .empty-state {
+      padding: 35px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .chart {
+      height: 220px;
+      padding-top: 15px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chart-column {
+      flex: 1;
+      max-width: 50px;
+      text-align: center;
+    }
+
+    .chart-bar {
+      width: 100%;
+      min-height: 3px;
+      background: linear-gradient(180deg, var(--secondary), var(--primary));
+      border-radius: 7px 7px 0 0;
+    }
+
+    .chart-label {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      padding: 20px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(5, 25, 50, 0.58);
+      backdrop-filter: blur(3px);
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(570px, 100%);
+      max-height: 92vh;
+      overflow-y: auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 25px 70px rgba(0,0,0,0.25);
+    }
+
+    .modal-header,
+    .modal-footer {
+      padding: 17px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .modal-header {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h3 {
+      margin: 0;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-footer {
+      border-top: 1px solid var(--border);
+      justify-content: flex-end;
+    }
+
+    .close-button {
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      font-size: 25px;
+    }
+
+    .toast-container {
+      position: fixed;
+      z-index: 200;
+      right: 22px;
+      bottom: 22px;
+    }
+
+    .toast {
+      min-width: 280px;
+      margin-top: 10px;
+      padding: 14px 17px;
+      color: white;
+      background: #12345a;
+      border-radius: 10px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+      animation: slideIn 0.25s ease;
+    }
+
+    .toast.success {
+      background: var(--success);
+    }
+
+    .toast.error {
+      background: var(--danger);
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @media (max-width: 1050px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .filters {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 780px) {
+      .login-page {
+        grid-template-columns: 1fr;
+      }
+
+      .login-brand {
+        display: none;
+      }
+
+      .login-panel {
+        min-height: 100vh;
+        border-radius: 0;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
+      .user-info {
+        display: none;
+      }
+
+      .content {
+        padding: 18px;
+      }
+
+      .form-grid,
+      .filters {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .topbar {
+        padding: 0 14px;
+      }
+    }
+
+    @media print {
+      .sidebar,
+      .topbar,
+      .page-header .actions,
+      .filters,
+      .no-print {
+        display: none !important;
+      }
+
+      .main {
+        margin: 0;
+      }
+
+      .content {
+        padding: 0;
+      }
+
+      .page {
+        display: none !important;
+      }
+
+      #reportsPage {
+        display: block !important;
+      }
+
+      .card {
+        border: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section id="loginPage" class="login-page">
+    <div class="login-brand">
+      <span class="brand-badge">SODI PEN FACTORY</span>
+      <h1>ระบบคลังสินค้า<br>ปากกาตราสอดี</h1>
+      <p>บริหารการรับเข้า เบิกออก และตรวจสอบสินค้าคงเหลืออย่างเป็นระบบ พร้อมรายงานสำหรับสนับสนุนการตัดสินใจ</p>
+      <div class="pen-art" aria-hidden="true"></div>
+    </div>
+
+    <div class="login-panel">
+      <form id="loginForm" class="login-card">
+        <div class="logo">
+          <div class="logo-mark">SD</div>
+          <div class="logo-text">
+            <strong>SODI Warehouse</strong>
+            <span>Inventory Management System</span>
+          </div>
+        </div>
+        <h2>เข้าสู่ระบบ</h2>
+        <p>กรุณากรอกชื่อผู้ใช้งานและรหัสผ่าน</p>
+        <div class="field">
+          <label for="loginUsername">ชื่อผู้ใช้งาน</label>
+          <input id="loginUsername" class="input" type="text" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="loginPassword">รหัสผ่าน</label>
+          <input id="loginPassword" class="input" type="password" autocomplete="current-password" required>
+        </div>
+        <div id="loginError" class="login-error"></div>
+        <button class="btn btn-primary btn-block" type="submit">เข้าสู่ระบบ</button>
+        <div class="login-help">
+          <strong>บัญชีทดลอง</strong><br>
+          admin / admin123 — ผู้ดูแลระบบ<br>
+          head / head123 — หัวหน้าแผนก<br>
+          user / user123 — ผู้ใช้งานทั่วไป
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section id="appPage" class="app hidden">
+    <aside id="sidebar" class="sidebar">
+      <div class="logo">
+        <div class="logo-mark">SD</div>
+        <div class="logo-text">
+          <strong>SODI Warehouse</strong>
+          <span>ระบบคลังสินค้า</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <div class="nav-label">ภาพรวมระบบ</div>
+        <button class="nav-item active" data-page="dashboard">▦ แดชบอร์ด</button>
+        <div class="nav-label">จัดการคลังสินค้า</div>
+        <button class="nav-item" data-page="inventory">▤ สินค้าคงเหลือ</button>
+        <button class="nav-item" data-page="transactions">⇄ รับเข้า / เบิกออก</button>
+        <button class="nav-item role-admin" data-page="products">✎ จัดการสินค้า</button>
+        <div class="nav-label">ข้อมูลและรายงาน</div>
+        <button class="nav-item role-report" data-page="reports">▥ รายงาน</button>
+        <button class="nav-item role-admin" data-page="users">♙ จัดการผู้ใช้งาน</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <strong id="sidebarUser">-</strong>
+        <span id="sidebarRole">-</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="menuToggle" class="menu-toggle" type="button">☰</button>
+          <div>
+            <h2 id="pageTitle">แดชบอร์ด</h2>
+            <div id="currentDate" class="topbar-date"></div>
+          </div>
+        </div>
+        <div class="user-area">
+          <div id="avatar" class="avatar">A</div>
+          <div class="user-info">
+            <strong id="currentUserName">-</strong>
+            <span id="currentUserRole">-</span>
+          </div>
+          <button id="logoutButton" class="btn btn-secondary" type="button">ออกจากระบบ</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section id="dashboardPage" class="page active">
+          <div class="page-header">
+            <div>
+              <h3>ภาพรวมคลังสินค้า</h3>
+              <p>สรุปข้อมูลสินค้าและความเคลื่อนไหวล่าสุด</p>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stat-card">
+              <div class="stat-label">รายการสินค้าทั้งหมด</div>
+              <div id="totalProducts" class="stat-value">0</div>
+              <div class="stat-note">จำนวน SKU ในระบบ</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label">สินค้าคงเหลือรวม</div>
+              <div id="totalStock" class="stat-value">0</div>
+              <div class="stat-note">หน่วยสินค้าทั้งหมด</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label">รับเข้าวันนี้</div>
+              <div id="todayInbound" class="stat-value">0</div>
+              <div class="stat-note">หน่วย</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label">เบิกออกวันนี้</div>
+              <div id="todayOutbound" class="stat-value">0</div>
+              <div class="stat-note">หน่วย</div>
+            </article>
+          </div>
+
+          <div class="grid-2">
+            <article class="card">
+              <h4 class="card-title">ความเคลื่อนไหว 7 วันล่าสุด</h4>
+              <div id="movementChart" class="chart"></div>
+            </article>
+            <article class="card">
+              <h4 class="card-title">สินค้าที่ต้องตรวจสอบ</h4>
+              <div id="lowStockList"></div>
+            </article>
+          </div>
+
+          <article class="card" style="margin-top:20px">
+            <h4 class="card-title">รายการล่าสุด</h4>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>วันที่</th>
+                    <th>ประเภท</th>
+                    <th>สินค้า</th>
+                    <th>จำนวน</th>
+                    <th>ผู้บันทึก</th>
+                  </tr>
+                </thead>
+                <tbody id="recentTransactions"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="inventoryPage" class="page">
+          <div class="page-header">
+            <div>
+              <h3>สินค้าคงเหลือ</h3>
+              <p>ตรวจสอบยอดคงเหลือและสถานะสินค้า</p>
+            </div>
+          </div>
+          <div class="filters">
+            <div class="field">
+              <label for="inventorySearch">ค้นหาสินค้า</label>
+              <input id="inventorySearch" class="input" type="search" placeholder="ชื่อสินค้า หรือ SKU">
+            </div>
+            <div class="field">
+              <label for="stockStatusFilter">สถานะ</label>
+              <select id="stockStatusFilter" class="input">
+                <option value="all">ทั้งหมด</option>
+                <option value="normal">ปกติ</option>
+                <option value="low">ใกล้หมด</option>
+                <option value="empty">หมด</option>
+              </select>
+            </div>
+          </div>
+          <article class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>SKU</th>
+                    <th>สินค้า</th>
+                    <th>สี</th>
+                    <th>คงเหลือ</th>
+                    <th>ขั้นต่ำ</th>
+                    <th>ระดับสินค้า</th>
+                    <th>สถานะ</th>
+                  </tr>
+                </thead>
+                <tbody id="inventoryTable"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="transactionsPage" class="page">
+          <div class="page-header">
+            <div>
+              <h3>รับเข้า / เบิกออก</h3>
+              <p>บันทึกและตรวจสอบความเคลื่อนไหวของสินค้า</p>
+            </div>
+            <div class="actions">
+              <button class="btn btn-success" onclick="openTransactionModal('IN')">+ รับสินค้าเข้า</button>
+              <button class="btn btn-primary" onclick="openTransactionModal('OUT')">− เบิกสินค้าออก</button>
+            </div>
+          </div>
+          <div class="filters">
+            <div class="field">
+              <label for="transactionSearch">ค้นหา</label>
+              <input id="transactionSearch" class="input" type="search" placeholder="ชื่อสินค้า หรือหมายเหตุ">
+            </div>
+            <div class="field">
+              <label for="transactionTypeFilter">ประเภทรายการ</label>
+              <select id="transactionTypeFilter" class="input">
+                <option value="all">ทั้งหมด</option>
+                <option value="IN">รับเข้า</option>
+                <option value="OUT">เบิกออก</option>
+              </select>
+            </div>
+          </div>
+          <article class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>เลขที่รายการ</th>
+                    <th>วันและเวลา</th>
+                    <th>ประเภท</th>
+                    <th>สินค้า</th>
+                    <th>จำนวน</th>
+                    <th>หมายเหตุ</th>
+                    <th>ผู้บันทึก</th>
+                  </tr>
+                </thead>
+                <tbody id="transactionsTable"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="productsPage" class="page">
+          <div class="page-header">
+            <div>
+              <h3>จัดการสินค้า</h3>
+              <p>เพิ่ม แก้ไข และลบข้อมูลสินค้า</p>
+            </div>
+            <button class="btn btn-primary" onclick="openProductModal()">+ เพิ่มสินค้า</button>
+          </div>
+          <article class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>SKU</th>
+                    <th>ชื่อสินค้า</th>
+                    <th>สี</th>
+                    <th>หน่วย</th>
+                    <th>คงเหลือ</th>
+                    <th>ขั้นต่ำ</th>
+                    <th>จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="productsTable"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="reportsPage" class="page">
+          <div class="page-header">
+            <div>
+              <h3>รายงานคลังสินค้า</h3>
+              <p>รายงานประจำวัน ประจำเดือน ประจำปี และช่วงเวลาที่กำหนด</p>
+            </div>
+            <div class="actions">
+              <button class="btn btn-secondary" onclick="exportReportCSV()">ดาวน์โหลด CSV</button>
+              <button class="btn btn-primary" onclick="window.print()">พิมพ์รายงาน</button>
+            </div>
+          </div>
+          <div class="filters">
+            <div class="field">
+              <label for="reportPreset">ประเภทรายงาน</label>
+              <select id="reportPreset" class="input">
+                <option value="today">ประจำวัน</option>
+                <option value="month">ประจำเดือน</option>
+                <option value="year">ประจำปี</option>
+                <option value="custom">กำหนดช่วงเวลา</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="reportStart">วันที่เริ่มต้น</label>
+              <input id="reportStart" class="input" type="date">
+            </div>
+            <div class="field">
+              <label for="reportEnd">วันที่สิ้นสุด</label>
+              <input id="reportEnd" class="input" type="date">
+            </div>
+            <button class="btn btn-primary" onclick="renderReports()">แสดงรายงาน</button>
+          </div>
+          <div class="stats-grid">
+            <article class="stat-card">
+              <div class="stat-label">จำนวนรายการ</div>
+              <div id="reportTransactionCount" class="stat-value">0</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label">รับเข้ารวม</div>
+              <div id="reportInbound" class="stat-value">0</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label">เบิกออกรวม</div>
+              <div id="reportOutbound" class="stat-value">0</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label">ผลต่าง</div>
+              <div id="reportBalance" class="stat-value">0</div>
+            </article>
+          </div>
+          <article class="card" style="margin-top:20px">
+            <h4 class="card-title">รายละเอียดรายงาน</h4>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>วันที่</th>
+                    <th>เลขที่รายการ</th>
+                    <th>ประเภท</th>
+                    <th>สินค้า</th>
+                    <th>จำนวน</th>
+                    <th>ผู้บันทึก</th>
+                  </tr>
+                </thead>
+                <tbody id="reportTable"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="usersPage" class="page">
+          <div class="page-header">
+            <div>
+              <h3>จัดการผู้ใช้งาน</h3>
+              <p>กำหนดบัญชีและระดับสิทธิ์ผู้ใช้งาน</p>
+            </div>
+            <button class="btn btn-primary" onclick="openUserModal()">+ เพิ่มผู้ใช้งาน</button>
+          </div>
+          <article class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ชื่อผู้ใช้งาน</th>
+                    <th>ชื่อ–นามสกุล</th>
+                    <th>สิทธิ์</th>
+                    <th>สถานะ</th>
+                    <th>จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTable"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+  </section>
+
+  <div id="productModal" class="modal">
+    <div class="modal-card">
+      <form id="productForm">
+        <div class="modal-header">
+          <h3 id="productModalTitle">เพิ่มสินค้า</h3>
+          <button class="close-button" type="button" onclick="closeModal('productModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <input id="productId" type="hidden">
+          <div class="form-grid">
+            <div class="field">
+              <label for="productSku">รหัส SKU</label>
+              <input id="productSku" class="input" required>
+            </div>
+            <div class="field">
+              <label for="productName">ชื่อสินค้า</label>
+              <input id="productName" class="input" required>
+            </div>
+            <div class="field">
+              <label for="productColor">สีสินค้า</label>
+              <input id="productColor" class="input" required>
+            </div>
+            <div class="field">
+              <label for="productUnit">หน่วยนับ</label>
+              <input id="productUnit" class="input" value="ด้าม" required>
+            </div>
+            <div class="field">
+              <label for="productStock">ยอดเริ่มต้น</label>
+              <input id="productStock" class="input" type="number" min="0" value="0" required>
+            </div>
+            <div class="field">
+              <label for="productMinStock">จำนวนขั้นต่ำ</label>
+              <input id="productMinStock" class="input" type="number" min="0" value="100" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" onclick="closeModal('productModal')">ยกเลิก</button>
+          <button class="btn btn-primary" type="submit">บันทึกข้อมูล</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="transactionModal" class="modal">
+    <div class="modal-card">
+      <form id="transactionForm">
+        <div class="modal-header">
+          <h3 id="transactionModalTitle">บันทึกรายการ</h3>
+          <button class="close-button" type="button" onclick="closeModal('transactionModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <input id="transactionType" type="hidden">
+          <div class="field">
+            <label for="transactionProduct">สินค้า</label>
+            <select id="transactionProduct" class="input" required></select>
+          </div>
+          <div class="field">
+            <label for="transactionQuantity">จำนวน</label>
+            <input id="transactionQuantity" class="input" type="number" min="1" required>
+          </div>
+          <div class="field">
+            <label for="transactionNote">หมายเหตุ / เลขที่เอกสาร</label>
+            <textarea id="transactionNote" class="input" placeholder="ระบุรายละเอียดเพิ่มเติม"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" onclick="closeModal('transactionModal')">ยกเลิก</button>
+          <button class="btn btn-primary" type="submit">ยืนยันรายการ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="userModal" class="modal">
+    <div class="modal-card">
+      <form id="userForm">
+        <div class="modal-header">
+          <h3>เพิ่มผู้ใช้งาน</h3>
+          <button class="close-button" type="button" onclick="closeModal('userModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field">
+              <label for="newUsername">ชื่อผู้ใช้งาน</label>
+              <input id="newUsername" class="input" required>
+            </div>
+            <div class="field">
+              <label for="newFullName">ชื่อ–นามสกุล</label>
+              <input id="newFullName" class="input" required>
+            </div>
+            <div class="field">
+              <label for="newPassword">รหัสผ่าน</label>
+              <input id="newPassword" class="input" type="password" minlength="4" required>
+            </div>
+            <div class="field">
+              <label for="newRole">ระดับสิทธิ์</label>
+              <select id="newRole" class="input" required>
+                <option value="user">ผู้ใช้งานทั่วไป</option>
+                <option value="head">หัวหน้าแผนก</option>
+                <option value="admin">ผู้ดูแลระบบ</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" onclick="closeModal('userModal')">ยกเลิก</button>
+          <button class="btn btn-primary" type="submit">เพิ่มผู้ใช้งาน</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script>
+    const KEYS = {
+      users: "sodi_users",
+      products: "sodi_products",
+      transactions: "sodi_transactions",
+      session: "sodi_session"
+    };
+
+    const ROLE_NAMES = {
+      admin: "ผู้ดูแลระบบ",
+      head: "หัวหน้าแผนก",
+      user: "ผู้ใช้งานทั่วไป"
+    };
+
+    const PAGE_TITLES = {
+      dashboard: "แดชบอร์ด",
+      inventory: "สินค้าคงเหลือ",
+      transactions: "รับเข้า / เบิกออก",
+      products: "จัดการสินค้า",
+      reports: "รายงาน",
+      users: "จัดการผู้ใช้งาน"
+    };
+
+    let currentUser = null;
+    let currentReportRows = [];
+
+    function getData(key) {
+      return JSON.parse(localStorage.getItem(key) || "[]");
+    }
+
+    function setData(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function localDateString(date = new Date()) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function seedData() {
+      if (!localStorage.getItem(KEYS.users)) {
+        setData(KEYS.users, [
+          { id: 1, username: "admin", password: "admin123", fullName: "ผู้ดูแลระบบ", role: "admin", active: true },
+          { id: 2, username: "head", password: "head123", fullName: "หัวหน้าแผนกคลังสินค้า", role: "head", active: true },
+          { id: 3, username: "user", password: "user123", fullName: "เจ้าหน้าที่คลังสินค้า", role: "user", active: true }
+        ]);
+      }
+
+      if (!localStorage.getItem(KEYS.products)) {
+        setData(KEYS.products, [
+          { id: 101, sku: "SD-BL-001", name: "ปากกาลูกลื่นตราสอดี", color: "น้ำเงิน", unit: "ด้าม", stock: 1250, minStock: 300 },
+          { id: 102, sku: "SD-BK-001", name: "ปากกาลูกลื่นตราสอดี", color: "ดำ", unit: "ด้าม", stock: 880, minStock: 300 },
+          { id: 103, sku: "SD-RD-001", name: "ปากกาลูกลื่นตราสอดี", color: "แดง", unit: "ด้าม", stock: 240, minStock: 300 },
+          { id: 104, sku: "SD-MK-BL", name: "ปากกาเมจิกตราสอดี", color: "น้ำเงิน", unit: "ด้าม", stock: 450, minStock: 150 },
+          { id: 105, sku: "SD-CAP-001", name: "ฝาปิดปากกาตราสอดี", color: "น้ำเงิน", unit: "ชิ้น", stock: 2100, minStock: 500 }
+        ]);
+      }
+
+      if (!localStorage.getItem(KEYS.transactions)) {
+        const now = new Date();
+        const date1 = new Date(now);
+        const date2 = new Date(now);
+        date2.setDate(now.getDate() - 1);
+
+        setData(KEYS.transactions, [
+          {
+            id: "TX-" + Date.now(),
+            date: date1.toISOString(),
+            type: "IN",
+            productId: 101,
+            quantity: 250,
+            note: "รับเข้าจากฝ่ายผลิต",
+            username: "admin"
+          },
+          {
+            id: "TX-" + (Date.now() - 1000),
+            date: date2.toISOString(),
+            type: "OUT",
+            productId: 102,
+            quantity: 120,
+            note: "เบิกเพื่อจัดส่งลูกค้า",
+            username: "head"
+          }
+        ]);
+      }
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatNumber(value) {
+      return Number(value || 0).toLocaleString("th-TH");
+    }
+
+    function formatDateTime(value) {
+      return new Date(value).toLocaleString("th-TH", {
+        dateStyle: "medium",
+        timeStyle: "short"
+      });
+    }
+
+    function roleName(role) {
+      return ROLE_NAMES[role] || role;
+    }
+
+    function productById(id) {
+      return getData(KEYS.products).find(product => Number(product.id) === Number(id));
+    }
+
+    function showToast(message, type = "success") {
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.getElementById("toastContainer").appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("open");
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add("open");
+    }
+
+    function applyPermissions() {
+      const isAdmin = currentUser.role === "admin";
+      const canReport = ["admin", "head"].includes(currentUser.role);
+
+      document.querySelectorAll(".role-admin").forEach(element => {
+        element.classList.toggle("hidden", !isAdmin);
+      });
+
+      document.querySelectorAll(".role-report").forEach(element => {
+        element.classList.toggle("hidden", !canReport);
+      });
+    }
+
+    function showApplication() {
+      document.getElementById("loginPage").classList.add("hidden");
+      document.getElementById("appPage").classList.remove("hidden");
+      document.getElementById("currentUserName").textContent = currentUser.fullName;
+      document.getElementById("currentUserRole").textContent = roleName(currentUser.role);
+      document.getElementById("sidebarUser").textContent = currentUser.fullName;
+      document.getElementById("sidebarRole").textContent = roleName(currentUser.role);
+      document.getElementById("avatar").textContent = currentUser.fullName.charAt(0).toUpperCase();
+      document.getElementById("currentDate").textContent = new Date().toLocaleDateString("th-TH", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+      applyPermissions();
+      navigate("dashboard");
+    }
+
+    function navigate(page) {
+      if (["products", "users"].includes(page) && currentUser.role !== "admin") {
+        showToast("คุณไม่มีสิทธิ์เข้าถึงหน้านี้", "error");
+        return;
+      }
+
+      if (page === "reports" && !["admin", "head"].includes(currentUser.role)) {
+        showToast("คุณไม่มีสิทธิ์เข้าถึงรายงาน", "error");
+        return;
+      }
+
+      document.querySelectorAll(".page").forEach(element => element.classList.remove("active"));
+      document.querySelectorAll(".nav-item").forEach(element => element.classList.remove("active"));
+
+      document.getElementById(`${page}Page`).classList.add("active");
+      document.querySelector(`[data-page="${page}"]`)?.classList.add("active");
+      document.getElementById("pageTitle").textContent = PAGE_TITLES[page];
+      document.getElementById("sidebar").classList.remove("open");
+
+      if (page === "dashboard") renderDashboard();
+      if (page === "inventory") renderInventory();
+      if (page === "transactions") renderTransactions();
+      if (page === "products") renderProducts();
+      if (page === "reports") renderReports();
+      if (page === "users") renderUsers();
+    }
+
+    function renderDashboard() {
+      const products = getData(KEYS.products);
+      const transactions = getData(KEYS.transactions);
+      const today = localDateString();
+
+      const todayTransactions = transactions.filter(item =>
+        localDateString(new Date(item.date)) === today
+      );
+
+      const inbound = todayTransactions
+        .filter(item => item.type === "IN")
+        .reduce((sum, item) => sum + Number(item.quantity), 0);
+
+      const outbound = todayTransactions
+        .filter(item => item.type === "OUT")
+        .reduce((sum, item) => sum + Number(item.quantity), 0);
+
+      document.getElementById("totalProducts").textContent = formatNumber(products.length);
+      document.getElementById("totalStock").textContent = formatNumber(
+        products.reduce((sum, item) => sum + Number(item.stock), 0)
+      );
+      document.getElementById("todayInbound").textContent = formatNumber(inbound);
+      document.getElementById("todayOutbound").textContent = formatNumber(outbound);
+
+      const recent = [...transactions]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 7);
+
+      document.getElementById("recentTransactions").innerHTML = recent.length
+        ? recent.map(item => {
+            const product = productById(item.productId);
+            return `
+              <tr>
+                <td>${formatDateTime(item.date)}</td>
+                <td>${typeBadge(item.type)}</td>
+                <td>${escapeHTML(product?.name || "ไม่พบสินค้า")}</td>
+                <td>${formatNumber(item.quantity)}</td>
+                <td>${escapeHTML(item.username)}</td>
+              </tr>
+            `;
+          }).join("")
+        : `<tr><td colspan="5" class="empty-state">ยังไม่มีรายการเคลื่อนไหว</td></tr>`;
+
+      const lowProducts = products.filter(product => Number(product.stock) <= Number(product.minStock));
+      document.getElementById("lowStockList").innerHTML = lowProducts.length
+        ? lowProducts.map(product => `
+            <div style="padding:12px 0;border-bottom:1px solid #edf1f6">
+              <strong>${escapeHTML(product.name)} (${escapeHTML(product.color)})</strong>
+              <div style="margin-top:5px;color:var(--muted);font-size:12px">
+                คงเหลือ ${formatNumber(product.stock)} ${escapeHTML(product.unit)}
+                <span class="badge badge-warning">ขั้นต่ำ ${formatNumber(product.minStock)}</span>
+              </div>
+            </div>
+          `).join("")
+        : `<div class="empty-state">สินค้าทุกรายการอยู่ในระดับปกติ</div>`;
+
+      renderMovementChart(transactions);
+    }
+
+    function renderMovementChart(transactions) {
+      const days = [];
+
+      for (let index = 6; index >= 0; index--) {
+        const date = new Date();
+        date.setDate(date.getDate() - index);
+        const key = localDateString(date);
+        const total = transactions
+          .filter(item => localDateString(new Date(item.date)) === key)
+          .reduce((sum, item) => sum + Number(item.quantity), 0);
+
+        days.push({
+          label: date.toLocaleDateString("th-TH", { weekday: "short" }),
+          total
+        });
+      }
+
+      const max = Math.max(...days.map(day => day.total), 1);
+
+      document.getElementById("movementChart").innerHTML = days.map(day => `
+        <div class="chart-column" title="${formatNumber(day.total)} หน่วย">
+          <div class="chart-bar" style="height:${Math.max((day.total / max) * 175, 3)}px"></div>
+          <div class="chart-label">${escapeHTML(day.label)}</div>
+        </div>
+      `).join("");
+    }
+
+    function stockStatus(product) {
+      if (Number(product.stock) === 0) {
+        return { key: "empty", text: "สินค้าหมด", className: "badge-danger" };
+      }
+
+      if (Number(product.stock) <= Number(product.minStock)) {
+        return { key: "low", text: "ใกล้หมด", className: "badge-warning" };
+      }
+
+      return { key: "normal", text: "ปกติ", className: "badge-success" };
+    }
+
+    function renderInventory() {
+      const search = document.getElementById("inventorySearch").value.toLowerCase();
+      const filter = document.getElementById("stockStatusFilter").value;
+
+      const products = getData(KEYS.products).filter(product => {
+        const matchesSearch =
+          product.name.toLowerCase().includes(search) ||
+          product.sku.toLowerCase().includes(search);
+
+        const status = stockStatus(product);
+        return matchesSearch && (filter === "all" || status.key === filter);
+      });
+
+      document.getElementById("inventoryTable").innerHTML = products.length
+        ? products.map(product => {
+            const status = stockStatus(product);
+            const target = Math.max(Number(product.minStock) * 3, 1);
+            const percentage = Math.min((Number(product.stock) / target) * 100, 100);
+
+            return `
+              <tr>
+                <td><strong>${escapeHTML(product.sku)}</strong></td>
+                <td>${escapeHTML(product.name)}</td>
+                <td>${escapeHTML(product.color)}</td>
+                <td><strong>${formatNumber(product.stock)}</strong> ${escapeHTML(product.unit)}</td>
+                <td>${formatNumber(product.minStock)}</td>
+                <td>
+                  <div class="stock-bar">
+                    <span style="width:${percentage}%"></span>
+                  </div>
+                </td>
+                <td><span class="badge ${status.className}">${status.text}</span></td>
+              </tr>
+            `;
+          }).join("")
+        : `<tr><td colspan="7" class="empty-state">ไม่พบข้อมูลสินค้า</td></tr>`;
+    }
+
+    function typeBadge(type) {
+      return type === "IN"
+        ? `<span class="badge badge-success">รับเข้า</span>`
+        : `<span class="badge badge-info">เบิกออก</span>`;
+    }
+
+    function renderTransactions() {
+      const search = document.getElementById("transactionSearch").value.toLowerCase();
+      const type = document.getElementById("transactionTypeFilter").value;
+
+      const rows = getData(KEYS.transactions)
+        .filter(item => {
+          const product = productById(item.productId);
+          const text = `${product?.name || ""} ${item.note || ""}`.toLowerCase();
+          return text.includes(search) && (type === "all" || item.type === type);
+        })
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      document.getElementById("transactionsTable").innerHTML = rows.length
+        ? rows.map(item => {
+            const product = productById(item.productId);
+            return `
+              <tr>
+                <td>${escapeHTML(item.id)}</td>
+                <td>${formatDateTime(item.date)}</td>
+                <td>${typeBadge(item.type)}</td>
+                <td>${escapeHTML(product?.name || "ไม่พบสินค้า")} (${escapeHTML(product?.color || "-")})</td>
+                <td><strong>${formatNumber(item.quantity)}</strong></td>
+                <td>${escapeHTML(item.note || "-")}</td>
+                <td>${escapeHTML(item.username)}</td>
+              </tr>
+            `;
+          }).join("")
+        : `<tr><td colspan="7" class="empty-state">ไม่พบรายการ</td></tr>`;
+    }
+
+    function openTransactionModal(type) {
+      const products = getData(KEYS.products);
+
+      if (!products.length) {
+        showToast("กรุณาเพิ่มข้อมูลสินค้าก่อน", "error");
+        return;
+      }
+
+      document.getElementById("transactionForm").reset();
+      document.getElementById("transactionType").value = type;
+      document.getElementById("transactionModalTitle").textContent =
+        type === "IN" ? "รับสินค้าเข้าคลัง" : "เบิกสินค้าออกจากคลัง";
+
+      document.getElementById("transactionProduct").innerHTML = products.map(product => `
+        <option value="${product.id}">
+          ${escapeHTML(product.sku)} — ${escapeHTML(product.name)}
+          (${escapeHTML(product.color)}) คงเหลือ ${formatNumber(product.stock)}
+        </option>
+      `).join("");
+
+      openModal("transactionModal");
+    }
+
+    function renderProducts() {
+      const products = getData(KEYS.products);
+
+      document.getElementById("productsTable").innerHTML = products.length
+        ? products.map(product => `
+            <tr>
+              <td><strong>${escapeHTML(product.sku)}</strong></td>
+              <td>${escapeHTML(product.name)}</td>
+              <td>${escapeHTML(product.color)}</td>
+              <td>${escapeHTML(product.unit)}</td>
+              <td>${formatNumber(product.stock)}</td>
+              <td>${formatNumber(product.minStock)}</td>
+              <td>
+                <button class="btn btn-secondary" onclick="openProductModal(${product.id})">แก้ไข</button>
+                <button class="btn btn-danger" onclick="deleteProduct(${product.id})">ลบ</button>
+              </td>
+            </tr>
+          `).join("")
+        : `<tr><td colspan="7" class="empty-state">ยังไม่มีสินค้าในระบบ</td></tr>`;
+    }
+
+    function openProductModal(id = null) {
+      document.getElementById("productForm").reset();
+      document.getElementById("productId").value = "";
+      document.getElementById("productUnit").value = "ด้าม";
+      document.getElementById("productStock").value = 0;
+      document.getElementById("productMinStock").value = 100;
+      document.getElementById("productModalTitle").textContent = id ? "แก้ไขสินค้า" : "เพิ่มสินค้า";
+
+      if (id) {
+        const product = productById(id);
+        if (!product) return;
+
+        document.getElementById("productId").value = product.id;
+        document.getElementById("productSku").value = product.sku;
+        document.getElementById("productName").value = product.name;
+        document.getElementById("productColor").value = product.color;
+        document.getElementById("productUnit").value = product.unit;
+        document.getElementById("productStock").value = product.stock;
+        document.getElementById("productMinStock").value = product.minStock;
+      }
+
+      openModal("productModal");
+    }
+
+    function deleteProduct(id) {
+      const transactions = getData(KEYS.transactions);
+
+      if (transactions.some(item => Number(item.productId) === Number(id))) {
+        showToast("ไม่สามารถลบสินค้าที่มีประวัติรับเข้าหรือเบิกออกได้", "error");
+        return;
+      }
+
+      if (!confirm("ยืนยันการลบสินค้านี้หรือไม่?")) return;
+
+      const products = getData(KEYS.products).filter(product => Number(product.id) !== Number(id));
+      setData(KEYS.products, products);
+      renderProducts();
+      showToast("ลบสินค้าเรียบร้อยแล้ว");
+    }
+
+    function setReportDates() {
+      const preset = document.getElementById("reportPreset").value;
+      const now = new Date();
+      let start = new Date(now);
+      let end = new Date(now);
+
+      if (preset === "month") {
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      } else if (preset === "year") {
+        start = new Date(now.getFullYear(), 0, 1);
+        end = new Date(now.getFullYear(), 11, 31);
+      }
+
+      if (preset !== "custom") {
+        document.getElementById("reportStart").value = localDateString(start);
+        document.getElementById("reportEnd").value = localDateString(end);
+      }
+    }
+
+    function renderReports() {
+      if (!document.getElementById("reportStart").value) {
+        setReportDates();
+      }
+
+      const startValue = document.getElementById("reportStart").value;
+      const endValue = document.getElementById("reportEnd").value;
+
+      const start = new Date(`${startValue}T00:00:00`);
+      const end = new Date(`${endValue}T23:59:59`);
+
+      currentReportRows = getData(KEYS.transactions)
+        .filter(item => {
+          const date = new Date(item.date);
+          return date >= start && date <= end;
+        })
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      const inbound = currentReportRows
+        .filter(item => item.type === "IN")
+        .reduce((sum, item) => sum + Number(item.quantity), 0);
+
+      const outbound = currentReportRows
+        .filter(item => item.type === "OUT")
+        .reduce((sum, item) => sum + Number(item.quantity), 0);
+
+      document.getElementById("reportTransactionCount").textContent = formatNumber(currentReportRows.length);
+      document.getElementById("reportInbound").textContent = formatNumber(inbound);
+      document.getElementById("reportOutbound").textContent = formatNumber(outbound);
+      document.getElementById("reportBalance").textContent = formatNumber(inbound - outbound);
+
+      document.getElementById("reportTable").innerHTML = currentReportRows.length
+        ? currentReportRows.map(item => {
+            const product = productById(item.productId);
+            return `
+              <tr>
+                <td>${formatDateTime(item.date)}</td>
+                <td>${escapeHTML(item.id)}</td>
+                <td>${typeBadge(item.type)}</td>
+                <td>${escapeHTML(product?.name || "ไม่พบสินค้า")}</td>
+                <td>${formatNumber(item.quantity)}</td>
+                <td>${escapeHTML(item.username)}</td>
+              </tr>
+            `;
+          }).join("")
+        : `<tr><td colspan="6" class="empty-state">ไม่พบข้อมูลในช่วงเวลาที่เลือก</td></tr>`;
+    }
+
+    function exportReportCSV() {
+      if (!currentReportRows.length) {
+        showToast("ไม่มีข้อมูลสำหรับดาวน์โหลด", "error");
+        return;
+      }
+
+      const rows = [
+        ["เลขที่รายการ", "วันที่", "ประเภท", "SKU", "สินค้า", "สี", "จำนวน", "หมายเหตุ", "ผู้บันทึก"],
+        ...currentReportRows.map(item => {
+          const product = productById(item.productId);
+          return [
+            item.id,
+            formatDateTime(item.date),
+            item.type === "IN" ? "รับเข้า" : "เบิกออก",
+            product?.sku || "",
+            product?.name || "",
+            product?.color || "",
+            item.quantity,
+            item.note || "",
+            item.username
+          ];
+        })
+      ];
+
+      const csv = "\uFEFF" + rows
+        .map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(","))
+        .join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `sodi-warehouse-report-${localDateString()}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function renderUsers() {
+      const users = getData(KEYS.users);
+
+      document.getElementById("usersTable").innerHTML = users.map(user => `
+        <tr>
+          <td><strong>${escapeHTML(user.username)}</strong></td>
+          <td>${escapeHTML(user.fullName)}</td>
+          <td><span class="badge badge-info">${escapeHTML(roleName(user.role))}</span></td>
+          <td>
+            <span class="badge ${user.active ? "badge-success" : "badge-danger"}">
+              ${user.active ? "ใช้งาน" : "ระงับ"}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-secondary" onclick="toggleUser(${user.id})">
+              ${user.active ? "ระงับ" : "เปิดใช้งาน"}
+            </button>
+            ${user.username !== "admin"
+              ? `<button class="btn btn-danger" onclick="deleteUser(${user.id})">ลบ</button>`
+              : ""}
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function openUserModal() {
+      document.getElementById("userForm").reset();
+      openModal("userModal");
+    }
+
+    function toggleUser(id) {
+      const users = getData(KEYS.users);
+      const user = users.find(item => Number(item.id) === Number(id));
+
+      if (!user || user.username === currentUser.username) {
+        showToast("ไม่สามารถระงับบัญชีที่กำลังใช้งานอยู่", "error");
+        return;
+      }
+
+      user.active = !user.active;
+      setData(KEYS.users, users);
+      renderUsers();
+      showToast("ปรับปรุงสถานะผู้ใช้งานแล้ว");
+    }
+
+    function deleteUser(id) {
+      const users = getData(KEYS.users);
+      const user = users.find(item => Number(item.id) === Number(id));
+
+      if (!user || user.username === "admin" || user.username === currentUser.username) {
+        showToast("ไม่สามารถลบบัญชีนี้ได้", "error");
+        return;
+      }
+
+      if (!confirm("ยืนยันการลบผู้ใช้งานหรือไม่?")) return;
+
+      setData(KEYS.users, users.filter(item => Number(item.id) !== Number(id)));
+      renderUsers();
+      showToast("ลบผู้ใช้งานเรียบร้อยแล้ว");
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      const user = getData(KEYS.users).find(item =>
+        item.username === username &&
+        item.password === password &&
+        item.active
+      );
+
+      if (!user) {
+        document.getElementById("loginError").textContent =
+          "ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง หรือบัญชีถูกระงับ";
+        return;
+      }
+
+      currentUser = user;
+      sessionStorage.setItem(KEYS.session, JSON.stringify(user));
+      document.getElementById("loginError").textContent = "";
+      showApplication();
+    });
+
+    document.getElementById("logoutButton").addEventListener("click", () => {
+      sessionStorage.removeItem(KEYS.session);
+      currentUser = null;
+      document.getElementById("appPage").classList.add("hidden");
+      document.getElementById("loginPage").classList.remove("hidden");
+      document.getElementById("loginForm").reset();
+    });
+
+    document.querySelectorAll(".nav-item").forEach(button => {
+      button.addEventListener("click", () => navigate(button.dataset.page));
+    });
+
+    document.getElementById("menuToggle").addEventListener("click", () => {
+      document.getElementById("sidebar").classList.toggle("open");
+    });
+
+    document.getElementById("inventorySearch").addEventListener("input", renderInventory);
+    document.getElementById("stockStatusFilter").addEventListener("change", renderInventory);
+    document.getElementById("transactionSearch").addEventListener("input", renderTransactions);
+    document.getElementById("transactionTypeFilter").addEventListener("change", renderTransactions);
+
+    document.getElementById("reportPreset").addEventListener("change", () => {
+      setReportDates();
+      renderReports();
+    });
+
+    document.getElementById("productForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      const products = getData(KEYS.products);
+      const id = Number(document.getElementById("productId").value);
+      const sku = document.getElementById("productSku").value.trim();
+
+      if (products.some(product => product.sku.toLowerCase() === sku.toLowerCase() && product.id !== id)) {
+        showToast("รหัส SKU นี้มีอยู่แล้ว", "error");
+        return;
+      }
+
+      const data = {
+        id: id || Date.now(),
+        sku,
+        name: document.getElementById("productName").value.trim(),
+        color: document.getElementById("productColor").value.trim(),
+        unit: document.getElementById("productUnit").value.trim(),
+        stock: Number(document.getElementById("productStock").value),
+        minStock: Number(document.getElementById("productMinStock").value)
+      };
+
+      if (id) {
+        const index = products.findIndex(product => product.id === id);
+        products[index] = data;
+      } else {
+        products.push(data);
+      }
+
+      setData(KEYS.products, products);
+      closeModal("productModal");
+      renderProducts();
+      showToast(id ? "แก้ไขสินค้าเรียบร้อยแล้ว" : "เพิ่มสินค้าเรียบร้อยแล้ว");
+    });
+
+    document.getElementById("transactionForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      const type = document.getElementById("transactionType").value;
+      const productId = Number(document.getElementById("transactionProduct").value);
+      const quantity = Number(document.getElementById("transactionQuantity").value);
+      const note = document.getElementById("transactionNote").value.trim();
+
+      if (quantity <= 0) {
+        showToast("จำนวนสินค้าต้องมากกว่า 0", "error");
+        return;
+      }
+
+      const products = getData(KEYS.products);
+      const product = products.find(item => Number(item.id) === productId);
+
+      if (!product) {
+        showToast("ไม่พบข้อมูลสินค้า", "error");
+        return;
+      }
+
+      if (type === "OUT" && quantity > Number(product.stock)) {
+        showToast(`สินค้าไม่เพียงพอ คงเหลือ ${formatNumber(product.stock)} ${product.unit}`, "error");
+        return;
+      }
+
+      product.stock = type === "IN"
+        ? Number(product.stock) + quantity
+        : Number(product.stock) - quantity;
+
+      const transactions = getData(KEYS.transactions);
+      transactions.push({
+        id: `TX-${Date.now()}`,
+        date: new Date().toISOString(),
+        type,
+        productId,
+        quantity,
+        note,
+        username: currentUser.username
+      });
+
+      setData(KEYS.products, products);
+      setData(KEYS.transactions, transactions);
+      closeModal("transactionModal");
+      renderTransactions();
+      showToast(type === "IN" ? "รับสินค้าเข้าเรียบร้อยแล้ว" : "เบิกสินค้าออกเรียบร้อยแล้ว");
+    });
+
+    document.getElementById("userForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      const users = getData(KEYS.users);
+      const username = document.getElementById("newUsername").value.trim();
+
+      if (users.some(user => user.username.toLowerCase() === username.toLowerCase())) {
+        showToast("ชื่อผู้ใช้งานนี้มีอยู่แล้ว", "error");
+        return;
+      }
+
+      users.push({
+        id: Date.now(),
+        username,
+        fullName: document.getElementById("newFullName").value.trim(),
+        password: document.getElementById("newPassword").value,
+        role: document.getElementById("newRole").value,
+        active: true
+      });
+
+      setData(KEYS.users, users);
+      closeModal("userModal");
+      renderUsers();
+      showToast("เพิ่มผู้ใช้งานเรียบร้อยแล้ว");
+    });
+
+    document.querySelectorAll(".modal").forEach(modal => {
+      modal.addEventListener("click", event => {
+        if (event.target === modal) modal.classList.remove("open");
+      });
+    });
+
+    seedData();
+    setReportDates();
+
+    const session = JSON.parse(sessionStorage.getItem(KEYS.session) || "null");
+    if (session) {
+      const activeUser = getData(KEYS.users).find(user =>
+        user.username === session.username && user.active
+      );
+
+      if (activeUser) {
+        currentUser = activeUser;
+        showApplication();
+      }
+    }
+  </script>
+</body>
+</html>
